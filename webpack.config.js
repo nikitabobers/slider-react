@@ -21,13 +21,26 @@ module.exports = {
 					loader: "babel-loader",
 				},
 			},
+
+			// Allow import css files in react components
 			{
 				test: /\.css$/,
 				use: ["style-loader", "css-loader"],
 			},
 		],
 	},
-	plugins: [new HtmlWebpackPlugin()],
+	devServer: {
+		contentBase: path.join(__dirname, "dist"),
+		compress: true,
+		port: 3000,
+		hot: true,
+		open: true,
+	},
+	plugins: [
+		new HtmlWebpackPlugin({
+			template: "./src/index.html",
+		}),
+	],
 	resolve: {
 		extensions: [".js", ".jsx"],
 	},

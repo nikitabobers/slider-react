@@ -1,0 +1,17 @@
+{
+  "name": "slider-react",
+  "version": "1.0.0",
+  "description": "test for scandicweb",
+  "main": "index.js",
+  "author": "Nikita Bobers",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
+  },
+  "devDependencies": {
+    "webpack": "^5.9.0",
+    "webpack-cli": "^4.2.0",
+    "webpack-dev-server": "^3.11.0"
+  }
+}

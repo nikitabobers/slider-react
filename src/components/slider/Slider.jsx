@@ -62,8 +62,7 @@ const Slider = ({ children }) => {
 	};
 
 	const touchMove = (e) => {
-		const startPoint =
-			e.touches[0].clientX - containerRef.current.offsetLeft;
+		const startPoint = e.touches[0].clientX - containerRef.current.offsetLeft;
 		const move = startPoint - pointClick;
 		containerRef.current.scrollLeft = pointCurrent - move;
 	};

@@ -14,22 +14,24 @@
   position: relative;
   margin: auto;
   overflow: hidden;
+  border: 1px solid red;
+  padding: 20px 0;
+  padding-left: 0;
+  margin: 0 3rem;
 }
 
 /* ul list */
 .slider__list {
   transition: transform 0.4s ease-in-out;
-  width: 100000px;
+  width: 200000px;
   display: flex;
-  padding-right: var(--distance-normal);
 }
 
 /* li child */
 .slider__item {
-  margin: 1rem 0;
-  margin-left: var(--distance-normal);
-  width: 45vw;
-  height: 350px;
+  margin-left: 20px;
+  min-width: 150px;
+  min-height: 150px;
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 5px 15px #ccc;

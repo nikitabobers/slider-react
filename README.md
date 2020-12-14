@@ -14,7 +14,7 @@ Slider created with ReactJS library
 
   `cd slider-react` to go into the project root
 
-  `yarn init` to install dependencies
+  `yarn install` to install dependencies
 
 ## Available commands
 

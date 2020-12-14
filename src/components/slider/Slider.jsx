@@ -2,16 +2,20 @@ import React, { createRef, useEffect, useState } from "react";
 import { WarningMessage } from "./common/WarningMessage";
 import "./slider.css";
 
-const calcItemWidth = (number, container, item, handleChange) => {
+const calcItemWidth = (itemsTotal, container, item, handleChange) => {
   const containerWidth = container.current.getBoundingClientRect().width;
 
   const margin = parseInt(
     window.getComputedStyle(item.current).getPropertyValue("margin-left")
   );
 
-  const marginValue = margin / number;
+  const marginValue = margin / itemsTotal;
 
-  handleChange(containerWidth / number - marginValue);
+  if (itemsTotal < 5) {
+    handleChange(containerWidth / itemsTotal - marginValue + 5);
+  } else {
+    handleChange(containerWidth / itemsTotal - marginValue + 2);
+  }
 };
 
 const Slider = ({ children, slidesDisplayed }) => {
@@ -60,16 +64,22 @@ const Slider = ({ children, slidesDisplayed }) => {
   };
 
   const mouseLeave = () => (isDown = false);
-  const mouseUp = () => (isDown = false);
-
-  const mouseMove = (e) => {
-    if (!isDown) return;
+  const mouseUp = (e) => {
     e.preventDefault();
+    isDown = false;
+
     const startPoint = e.pageX - containerRef.current.offsetLeft;
+
     const move = startPoint - pointClick;
-    console.log(pointCurrent - move);
-    containerRef.current.scrollLeft = pointCurrent - move;
-    // containerRef.current.scrollLeft += 10;
+
+    // // Slide left
+    if (move != 0 && move > 50) {
+      containerRef.current.scrollLeft -= itemWidth;
+    }
+    // // Slide right
+    if (move != 0 && move < -50) {
+      containerRef.current.scrollLeft += itemWidth;
+    }
   };
 
   //
@@ -84,7 +94,15 @@ const Slider = ({ children, slidesDisplayed }) => {
   const touchMove = (e) => {
     const startPoint = e.touches[0].clientX - containerRef.current.offsetLeft;
     const move = startPoint - pointClick;
-    // containerRef.current.scrollLeft = pointCurrent - move;
+
+    // Slide left
+    if (move != 0 && move > 50) {
+      containerRef.current.scrollLeft -= itemWidth;
+    }
+    // Slide right
+    if (move != 0 && move < -50) {
+      containerRef.current.scrollLeft += itemWidth;
+    }
   };
 
   return (
@@ -96,7 +114,6 @@ const Slider = ({ children, slidesDisplayed }) => {
           onMouseDown={(e) => mouseDown(e)}
           onMouseLeave={(e) => mouseLeave(e)}
           onMouseUp={(e) => mouseUp(e)}
-          onMouseMove={(e) => mouseMove(e)}
           onTouchStart={(e) => touchStart(e)}
           onTouchMove={(e) => touchMove(e)}
         >

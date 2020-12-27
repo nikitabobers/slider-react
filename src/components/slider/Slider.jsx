@@ -53,56 +53,102 @@ const Slider = ({ children, slidesDisplayed }) => {
     listRef.current.style.width = `${children.length * itemWidth}px`;
   }, [itemWidth]);
 
-  //
-  // Mouse events
-  //
-
-  const mouseDown = (e) => {
+  const handleSlideStart = (e) => {
     isDown = true;
-    pointClick = e.pageX - containerRef.current.offsetLeft;
+
+    let eventStartPoint;
+
+    switch (e.type) {
+      case "touchstart":
+        eventStartPoint = e.touches[0].clientX;
+        break;
+      case "mousedown":
+        eventStartPoint = e.pageX;
+        break;
+      default:
+        eventStartPoint = 0;
+    }
+
+    pointClick = eventStartPoint - containerRef.current.offsetLeft;
     pointCurrent = containerRef.current.scrollLeft;
   };
 
-  const mouseLeave = () => (isDown = false);
-  const mouseUp = (e) => {
-    e.preventDefault();
+  const handleSlideMove = (e) => {
+    if (!isDown) return;
+    let eventStartPoint;
+
+    switch (e.type) {
+      case "touchmove":
+        eventStartPoint = e.touches[0].clientX;
+        break;
+      case "mousemove":
+        eventStartPoint = e.pageX;
+        break;
+      default:
+        eventStartPoint = 0;
+    }
+
+    const startPoint = eventStartPoint - containerRef.current.offsetLeft;
+    const moveValue = startPoint - pointClick;
+    containerRef.current.scrollLeft = pointCurrent - moveValue;
+  };
+
+  const handleSlideEnd = (e) => {
     isDown = false;
 
-    const startPoint = e.pageX - containerRef.current.offsetLeft;
+    // Add smooth animated style to Container div
+    containerRef.current.style.scrollBehavior = "smooth";
 
-    const move = startPoint - pointClick;
-
-    // // Slide left
-    if (move != 0 && move > 50) {
-      containerRef.current.scrollLeft -= itemWidth;
+    let eventStartPoint = 0;
+    switch (e.type) {
+      case "touchend":
+        eventStartPoint = e.changedTouches[0].clientX;
+        break;
+      case "mouseup":
+        eventStartPoint = e.pageX;
+        break;
+      default:
+        eventStartPoint = 0;
     }
-    // // Slide right
-    if (move != 0 && move < -50) {
-      containerRef.current.scrollLeft += itemWidth;
+
+    const startPoint = eventStartPoint - containerRef.current.offsetLeft;
+
+    // To determine slide direction (right or left)
+    let moveValue = startPoint - pointClick;
+
+    // Get only positive moving value
+    let moveAbsoluteValue = Math.abs(moveValue);
+
+    let counter = 1;
+    if (moveAbsoluteValue > itemWidth) {
+      counter = Math.round(moveAbsoluteValue / itemWidth);
     }
-  };
+    //Calculate distance left from scrolling point to the next slide element
+    let distanceToMove = itemWidth * counter - moveAbsoluteValue;
 
-  //
-  // Touch screen events
-  //
-
-  const touchStart = (e) => {
-    pointClick = e.touches[0].clientX - containerRef.current.offsetLeft;
-    pointCurrent = containerRef.current.scrollLeft;
-  };
-
-  const touchMove = (e) => {
-    const startPoint = e.touches[0].clientX - containerRef.current.offsetLeft;
-    const move = startPoint - pointClick;
-
+    // Return to start point if cswipe is too small
+    if (moveValue < 50 || moveValue > -50) {
+      containerRef.current.scrollLeft = pointCurrent;
+    }
     // Slide left
-    if (move != 0 && move > 50) {
-      containerRef.current.scrollLeft -= itemWidth;
+    if (moveValue > 50) {
+      containerRef.current.scrollLeft -= distanceToMove;
     }
     // Slide right
-    if (move != 0 && move < -50) {
-      containerRef.current.scrollLeft += itemWidth;
+    if (moveValue < -50) {
+      containerRef.current.scrollLeft += distanceToMove;
     }
+
+    // Reset Container div animation
+    containerRef.current.style.scrollBehavior = "auto";
+  };
+
+  // On desktop return to click start if mouse moved outside slider
+  const mouseLeave = () => {
+    isDown = false;
+    containerRef.current.style.scrollBehavior = "smooth";
+    containerRef.current.scrollLeft = pointCurrent;
+    containerRef.current.style.scrollBehavior = "auto";
   };
 
   return (
@@ -111,11 +157,13 @@ const Slider = ({ children, slidesDisplayed }) => {
         <ul
           className={`slider__list`}
           ref={listRef}
-          onMouseDown={(e) => mouseDown(e)}
+          onMouseDown={(e) => handleSlideStart(e)}
+          onMouseMove={(e) => handleSlideMove(e)}
+          onMouseUp={(e) => handleSlideEnd(e)}
           onMouseLeave={(e) => mouseLeave(e)}
-          onMouseUp={(e) => mouseUp(e)}
-          onTouchStart={(e) => touchStart(e)}
-          onTouchMove={(e) => touchMove(e)}
+          onTouchStart={(e) => handleSlideStart(e)}
+          onTouchMove={(e) => handleSlideMove(e)}
+          onTouchEnd={(e) => handleSlideEnd(e)}
         >
           {children.map((item, index) => (
             <li
